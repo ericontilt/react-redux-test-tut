@@ -1,15 +1,10 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { store } from './app/store';
-import App from './App';
+import React from 'react'
+import { screen } from '@testing-library/react'
+import { render } from './testUtils'
+import App from './App'
 
-test('renders learn react link', () => {
-  const { getByText } = render(
-    <Provider store={store}>
-      <App />
-    </Provider>
-  );
+test('App renders home page by default', () => {
+  render(<App />)
 
-  expect(getByText(/learn/i)).toBeInTheDocument();
-});
+  expect(screen.getByText(/home/i)).toBeInTheDocument()
+})
