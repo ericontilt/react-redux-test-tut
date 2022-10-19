@@ -7,6 +7,8 @@ import { render } from '../../testUtils'
 import UserEdit from './UserEdit'
 import { rest } from 'msw'
 import { server } from '../../mocks/server'
+import { User } from './userSlice'
+import { act } from 'react-dom/test-utils'
 
 /*
 <RouterProvider
@@ -57,8 +59,10 @@ describe('UserEdit', () => {
   it('updates user details', async () => {
     const user = userEvent.setup()
 
+    let updatedUser: User
     server.use(
-      rest.put('http://localhost:3001/users/:userId', (req, res, ctx) => {
+      rest.put('http://localhost:3001/users/:userId', async (req, res, ctx) => {
+        updatedUser = (await req.json()) as User
         return res.once(ctx.json({}))
       })
     )
@@ -75,14 +79,24 @@ describe('UserEdit', () => {
     )
 
     const nameInput = screen.getByRole('textbox', { name: /name/i })
+    await user.clear(nameInput)
     await user.type(nameInput, 'New Name')
 
     const emailInput = screen.getByRole('textbox', { name: /email/i })
+    await user.clear(emailInput)
     await user.type(emailInput, 'newname@email.com')
 
     expect(screen.getByRole('button', { name: /save/i })).toBeEnabled()
     await user.click(screen.getByRole('button', { name: /save/i }))
 
     expect(screen.getByRole('heading')).toHaveTextContent(/read view/i)
+
+    act(() => {
+      expect(updatedUser).toBeDefined()
+      expect(updatedUser).toMatchObject({
+        name: 'New Name',
+        email: 'newname@email.com',
+      })
+    })
   })
 })
