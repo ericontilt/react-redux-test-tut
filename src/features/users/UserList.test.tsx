@@ -1,5 +1,4 @@
 import { screen } from '@testing-library/react'
-import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { render } from '../../testUtils'
 import UserList from './UserList'
@@ -15,11 +14,8 @@ describe('UserList', () => {
   })
 
   it('renders a list of users on successful load', async () => {
-    render(
-      <MemoryRouter>
-        <UserList />
-      </MemoryRouter>
-    )
+    // as an alternative syntax to manually wrapping in a Router, use the testUtils render function 'route' option
+    render(<UserList />, { route: '/users' })
 
     // findByRole is async and will wait for the element to appear (or timeout)
     await screen.findByRole('list')

@@ -1,10 +1,12 @@
 import { PreloadedState } from '@reduxjs/toolkit'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { RootState } from '../../app/store'
 import { render } from '../../testUtils'
 import UserEdit from './UserEdit'
+import { rest } from 'msw'
+import { server } from '../../mocks/server'
 
 /*
 <RouterProvider
@@ -29,32 +31,20 @@ describe('UserEdit', () => {
   }
 
   it('renders message for invalid user id', () => {
-    render(
-      <MemoryRouter initialEntries={['/users/invalid-user-id/edit']}>
-        <Routes>
-          <Route path='/users/:userId/edit' element={<UserEdit />} />
-        </Routes>
-      </MemoryRouter>,
-      {
-        preloadedState: initialState,
-      }
-    )
+    render(<UserEdit />, {
+      route: '/users/invalid-user-id/edit',
+      routePath: '/users/:userId/edit',
+      preloadedState: initialState,
+    })
     expect(screen.getByRole('heading')).toHaveTextContent(/not found/i)
   })
 
   it('renders form with input values', () => {
-    render(
-      <MemoryRouter
-        initialEntries={['/users/32129e95-3356-470d-92d8-bf0ff8d24aff/edit']}
-      >
-        <Routes>
-          <Route path='/users/:userId/edit' element={<UserEdit />} />
-        </Routes>
-      </MemoryRouter>,
-      {
-        preloadedState: initialState,
-      }
-    )
+    render(<UserEdit />, {
+      route: '/users/32129e95-3356-470d-92d8-bf0ff8d24aff/edit',
+      routePath: '/users/:userId/edit',
+      preloadedState: initialState,
+    })
     expect(screen.getByRole('heading')).toHaveTextContent(/test user/i)
     expect(screen.getByRole('textbox', { name: /name/i })).toHaveValue(
       'Test User'
@@ -67,15 +57,19 @@ describe('UserEdit', () => {
   it('updates user details', async () => {
     const user = userEvent.setup()
 
+    server.use(
+      rest.put('http://localhost:3001/users/:userId', (req, res, ctx) => {
+        return res.once(ctx.json({}))
+      })
+    )
+
     render(
-      <MemoryRouter
-        initialEntries={['/users/32129e95-3356-470d-92d8-bf0ff8d24aff/edit']}
-      >
-        <Routes>
-          <Route path='/users/:userId/edit' element={<UserEdit />} />
-        </Routes>
-      </MemoryRouter>,
+      <Routes>
+        <Route path='/users/:userId' element={<h1>read view</h1>} />
+        <Route path='/users/:userId/edit' element={<UserEdit />} />
+      </Routes>,
       {
+        route: '/users/32129e95-3356-470d-92d8-bf0ff8d24aff/edit',
         preloadedState: initialState,
       }
     )
@@ -87,6 +81,8 @@ describe('UserEdit', () => {
     await user.type(emailInput, 'newname@email.com')
 
     expect(screen.getByRole('button', { name: /save/i })).toBeEnabled()
-    user.click(screen.getByRole('button', { name: /save/i }))
+    await user.click(screen.getByRole('button', { name: /save/i }))
+
+    expect(screen.getByRole('heading')).toHaveTextContent(/read view/i)
   })
 })
