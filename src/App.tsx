@@ -2,9 +2,10 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './App.css'
 import Home from './features/home/Home'
 import User from './features/users/User'
+import UserEdit from './features/users/UserEdit'
 import UserList from './features/users/UserList'
 
-export const router = createBrowserRouter([
+export const routeDefinitions = [
   {
     path: '/',
     element: <Home />,
@@ -18,9 +19,15 @@ export const router = createBrowserRouter([
         path: 'users/:userId',
         element: <User />,
       },
+      {
+        path: 'users/:userId/edit',
+        element: <UserEdit />,
+      },
     ],
   },
-])
+]
+
+const router = createBrowserRouter(routeDefinitions)
 
 function App() {
   return (

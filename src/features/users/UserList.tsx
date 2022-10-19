@@ -1,3 +1,4 @@
+import React from 'react'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
@@ -24,7 +25,7 @@ export default function UserList() {
       <ul>
         {users.map((user) => (
           <li key={user.id}>
-            <Link to={`users/${user.id}`}>{user.name}</Link>
+            <Link to={`${user.id}`}>{user.name}</Link>
           </li>
         ))}
       </ul>
