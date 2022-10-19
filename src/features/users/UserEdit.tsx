@@ -37,7 +37,7 @@ export default function UserEdit() {
         setEmail('')
         navigate('/users/' + user.id)
       } catch (error) {
-        console.log(error)
+        console.error(error)
       } finally {
         setRequestStatus('idle')
       }
